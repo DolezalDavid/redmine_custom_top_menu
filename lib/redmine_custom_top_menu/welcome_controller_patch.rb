@@ -1,25 +1,25 @@
-# Patch the WelcomeController to redirect Home to My Page for logged-in users
 module RedmineCustomTopMenu
-  module WelcomeControllerPatch
-    def self.included(base)
-      base.class_eval do
-        # Store the original method
-        alias_method :original_index, :index unless method_defined?(:original_index)
-        
-        # Override the index method
-        def index
-          if User.current.logged?
-            redirect_to my_page_path
-          else
-            original_index
-          end
-        end
+  class Hooks < Redmine::Hook::ViewListener
+    # Set up the custom menu
+    def self.setup_menu
+      # Delete the help menu item
+      Redmine::MenuManager.map(:top_menu).delete(:help)
+      
+      # Add new menu items
+      Redmine::MenuManager.map(:top_menu) do |menu|
+        menu.push :issues, { :controller => 'issues', :action => 'index' }, 
+                 :caption => :label_issue_plural, :after => :projects
+                 
+        menu.push :time_entries, { :controller => 'timelog', :action => 'index' },
+                 :if => Proc.new {
+                   User.current.allowed_to?(:view_time_entries, nil, :global => true) &&
+                   EnabledModule.exists?(:project => Project.visible, :name => :time_tracking)
+                 },
+                 :caption => :label_spent_time, :after => :issues
       end
     end
   end
 end
 
-# Apply the patch
-unless WelcomeController.included_modules.include?(RedmineCustomTopMenu::WelcomeControllerPatch)
-  WelcomeController.send(:include, RedmineCustomTopMenu::WelcomeControllerPatch)
-end
+# Set up the menu on plugin initialization
+RedmineCustomTopMenu::Hooks.setup_menu
