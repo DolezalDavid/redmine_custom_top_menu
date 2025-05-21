@@ -9,12 +9,16 @@ Redmine::Plugin.register :redmine_custom_top_menu do
   author_url 'https://github.com/DolezalDavid'
 end
 
-# Jednodušší a spolehlivější způsob načtení souborů
-Rails.application.config.to_prepare do
-  # Definujeme cestu k pluginu 
-  plugin_dir = File.dirname(__FILE__)
-  
-  # Načteme soubory z relativních cest v rámci pluginu
-  require_dependency "#{plugin_dir}/lib/redmine_custom_top_menu/welcome_controller_patch"
-  require_dependency "#{plugin_dir}/lib/redmine_custom_top_menu/hooks"
+# Přidáme debugging výstup do logu
+Rails.logger.info("*** Inicializace pluginu Redmine Custom Top Menu ***")
+
+# Načtení souborů s naším kódem
+require File.expand_path('../lib/redmine_custom_top_menu/welcome_controller_patch', __FILE__)
+require File.expand_path('../lib/redmine_custom_top_menu/menu_manager_patch', __FILE__)
+
+# Registrace funkcí, které se mají spustit při každém HTTP požadavku
+Rails.application.config.after_initialize do
+  Rails.logger.info("*** Aplikování Custom Top Menu patchů ***")
+  RedmineCustomTopMenu::WelcomeControllerPatch.apply
+  RedmineCustomTopMenu::MenuManagerPatch.apply
 end
