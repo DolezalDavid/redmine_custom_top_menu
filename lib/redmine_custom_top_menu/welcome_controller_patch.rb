@@ -1,23 +1,26 @@
 module RedmineCustomTopMenu
   module WelcomeControllerPatch
-    def self.included(base)
-      base.class_eval do
-        # Přepíše metodu index
-        def index
-          if User.current.logged?
-            redirect_to my_page_path
-          else
-            # Pro nepřihlášené uživatele zachovat původní chování
-            @news = News.latest User.current
-            @projects = Project.latest User.current
-          end
-        end
+    def self.apply
+      Rails.logger.info("*** Aplikování WelcomeController patche ***")
+      
+      # Ujistíme se, že patch ještě nebyl aplikován
+      unless WelcomeController.included_modules.include?(self)
+        WelcomeController.prepend(self)
+        Rails.logger.info("*** WelcomeController patch úspěšně aplikován ***")
+      end
+    end
+    
+    # Přepsání metody index
+    def index
+      Rails.logger.info("*** WelcomeController#index volán pro uživatele: #{User.current.logged? ? User.current.login : 'anonymous'} ***")
+      
+      if User.current.logged?
+        Rails.logger.info("*** Přesměrování na My Page ***")
+        redirect_to my_page_path
+      else
+        Rails.logger.info("*** Zobrazení výchozí Home page ***")
+        super
       end
     end
   end
-end
-
-# Přidáme patch do controlleru
-Rails.application.config.to_prepare do
-  WelcomeController.send(:include, RedmineCustomTopMenu::WelcomeControllerPatch)
 end
