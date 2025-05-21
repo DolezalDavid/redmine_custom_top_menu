@@ -1,16 +1,17 @@
+# Patch the WelcomeController to redirect Home to My Page for logged-in users
 module RedmineCustomTopMenu
   module WelcomeControllerPatch
     def self.included(base)
       base.class_eval do
-        # Override the index method to redirect to My Page for logged-in users
+        # Store the original method
+        alias_method :original_index, :index unless method_defined?(:original_index)
+        
+        # Override the index method
         def index
-          # Redirect to My Page for logged-in users
           if User.current.logged?
             redirect_to my_page_path
           else
-            # Original behavior for anonymous users
-            @news = News.latest User.current
-            @projects = Project.latest User.current
+            original_index
           end
         end
       end
@@ -19,6 +20,6 @@ module RedmineCustomTopMenu
 end
 
 # Apply the patch
-Rails.configuration.to_prepare do
+unless WelcomeController.included_modules.include?(RedmineCustomTopMenu::WelcomeControllerPatch)
   WelcomeController.send(:include, RedmineCustomTopMenu::WelcomeControllerPatch)
 end
