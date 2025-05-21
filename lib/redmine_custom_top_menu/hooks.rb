@@ -1,16 +1,17 @@
 module RedmineCustomTopMenu
-  class Hooks < Redmine::Hook::ViewListener
-    def self.custom_top_menu
-      # Remove Help menu item
+  class Hooks
+    # Nastavení vlastního menu
+    def self.apply
+      # Odstranění help položky menu
       Redmine::MenuManager.map(:top_menu).delete(:help)
       
-      # Add new menu items
+      # Přidání nových položek menu
       Redmine::MenuManager.map(:top_menu) do |menu|
-        # Add Issues menu item after Projects
+        # Přidání issues
         menu.push :issues, { :controller => 'issues', :action => 'index' }, 
                  :caption => :label_issue_plural, :after => :projects
                  
-        # Add Time entries menu item after Issues
+        # Přidání time entries
         menu.push :time_entries, { :controller => 'timelog', :action => 'index' },
                  :if => Proc.new {
                    User.current.allowed_to?(:view_time_entries, nil, :global => true) &&
@@ -22,7 +23,7 @@ module RedmineCustomTopMenu
   end
 end
 
-# Register menu modifications at startup
-Rails.configuration.to_prepare do
-  RedmineCustomTopMenu::Hooks.custom_top_menu
+# Aplikujeme úpravy menu při inicializaci
+Rails.application.config.to_prepare do
+  RedmineCustomTopMenu::Hooks.apply
 end
