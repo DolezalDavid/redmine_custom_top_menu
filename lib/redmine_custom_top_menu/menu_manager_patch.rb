@@ -6,6 +6,10 @@ module RedmineCustomTopMenu
       # Odstraníme položku Help
       Redmine::MenuManager.map(:top_menu).delete(:help)
       Rails.logger.info("*** Položka Help odstraněna z menu ***")
+
+       # Odstraníme položku Moje stránky
+      Redmine::MenuManager.map(:top_menu).delete(:my_page)
+      Rails.logger.info("*** Položka Moje stránka odstraněna z menu ***")
       
       # Přidáme položky Issues a Time entries
       Redmine::MenuManager.map(:top_menu) do |menu|
