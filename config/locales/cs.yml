@@ -1,0 +1,4 @@
+cs:
+  redmine_custom_top_menu:
+    plugin_name: "Redmine Custom Top Menu"
+    plugin_description: "Plugin přesměrovává domovskou stránku na Moji stránku pro přihlášené uživatele a upravuje hlavní menu"
