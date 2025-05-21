@@ -1,0 +1,4 @@
+en:
+  redmine_custom_top_menu:
+    plugin_name: "Redmine Custom Top Menu"
+    plugin_description: "A plugin that redirects Home to My Page for logged-in users and customizes the top menu"
