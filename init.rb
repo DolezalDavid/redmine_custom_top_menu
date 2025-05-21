@@ -9,8 +9,12 @@ Redmine::Plugin.register :redmine_custom_top_menu do
   author_url 'https://github.com/DolezalDavid'
 end
 
-Rails.configuration.to_prepare do
-  # Load the patches and hooks
-  require_dependency File.join(File.dirname(__FILE__), 'lib/redmine_custom_top_menu/welcome_controller_patch')
-  require_dependency File.join(File.dirname(__FILE__), 'lib/redmine_custom_top_menu/hooks')
+# Jednodušší a spolehlivější způsob načtení souborů
+Rails.application.config.to_prepare do
+  # Definujeme cestu k pluginu 
+  plugin_dir = File.dirname(__FILE__)
+  
+  # Načteme soubory z relativních cest v rámci pluginu
+  require_dependency "#{plugin_dir}/lib/redmine_custom_top_menu/welcome_controller_patch"
+  require_dependency "#{plugin_dir}/lib/redmine_custom_top_menu/hooks"
 end
